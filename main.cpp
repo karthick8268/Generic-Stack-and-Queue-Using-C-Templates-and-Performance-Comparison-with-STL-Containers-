@@ -1,80 +1,102 @@
 #include <iostream>
-#include <cassert>
+#include <stack>
+#include <queue>
+#include <chrono>
 using namespace std;
-class Matrix
+using namespace chrono;
+template <class T>
+class MyStack
 {
 private:
- int data[2][2];
+T data[10000];
+ int top;
 public:
- Matrix(int a = 0, int b = 0, int c = 0, int d = 0)
+ MyStack()
+ {
+ top = -1;
+ }
+ void push(T value)
+ {
+ if (top < 9999)
+ data[++top] = value;
+ }
+ void pop()
+ {
+ if (top >= 0)
+ top--;
+ }
+};
+template <class T>
+class MyQueue
 {
- data[0][0] = a;
- data[0][1] = b;
- data[1][0] = c;
- data[1][1] = d;
+private:
+ T data[10000];
+ int front, rear;
+public:
+ MyQueue()
+ {
+     front = 0;
+ rear = -1;
  }
- // Operator +
- Matrix operator+(const Matrix &m)
+ void enqueue(T value)
  {
- Matrix result;
- for (int i = 0; i < 2; i++)
- for (int j = 0; j < 2; j++)
- result.data[i][j] = data[i][j] + m.data[i][j];
- return result;
+ if (rear < 9999)
+ data[++rear] = value;
  }
- // Operator *
- Matrix operator*(const Matrix &m)
+ void dequeue()
  {
- Matrix result;
- for (int i = 0; i < 2; i++)
- {
- for (int j = 0; j < 2; j++)
- {
- result.data[i][j] = 0;
- for (int k = 0; k < 2; k++)
- result.data[i][j] += data[i][k] * m.data[k][j];
-  }
- }
- return result;
-}
- // Operator []
- int* operator[](int index)
- {
- return data[index];
- }
- // Operator <<
- friend ostream& operator<<(ostream &out, const Matrix &m)
- {
- for (int i = 0; i < 2; i++)
- {
- for (int j = 0; j < 2; j++)
- out << m.data[i][j] << " ";
- out << endl;
- }
- return out;
+ if (front <= rear)
+ front++;
  }
 };
 int main()
 {
- Matrix A(1, 2, 3, 4);
- Matrix B(5, 6, 7, 8);
-Matrix sum = A + B;
- Matrix product = A * B;
- // Unit Tests
- assert(sum[0][0] == 6);
- assert(sum[1][1] == 12);
- assert(product[0][0] == 19);
- assert(product[0][1] == 22);
- assert(product[1][0] == 43);
- assert(product[1][1] == 50);
- cout << "Matrix A:" << endl;
- cout << A;
- cout << "Matrix B:" << endl;
- cout << B;
- cout << "Addition of Matrices:" << endl;
- cout << sum;
- cout << "Multiplication of Matrices:" << endl;
- cout << product;
- cout << "All unit tests passed successfully." << endl;
+ const int N = 10000;
+ // Custom Stack Benchmark
+ auto start = high_resolution_clock::now();
+ MyStack<int> myStack;
+ for (int i = 0; i < N; i++)
+ myStack.push(i);
+ for (int i = 0; i < N; i++)
+ myStack.pop();
+ auto end = high_resolution_clock::now();
+ auto customStackTime =duration_cast<microseconds>(end - start);
+start = high_resolution_clock::now();
+ stack<int> stlStack;
+ for (int i = 0; i < N; i++)
+ stlStack.push(i);
+ for (int i = 0; i < N; i++)
+ stlStack.pop();
+ end = high_resolution_clock::now();
+ auto stlStackTime =
+ duration_cast<microseconds>(end - start);
+ // Custom Queue Benchmark
+ start = high_resolution_clock::now();
+ MyQueue<int> myQueue;
+ for (int i = 0; i < N; i++)
+ myQueue.enqueue(i);
+ for (int i = 0; i < N; i++)
+ myQueue.dequeue();
+ end = high_resolution_clock::now();
+ auto customQueueTime =
+ duration_cast<microseconds>(end - start);
+ // STL Queue Benchmark
+ start = high_resolution_clock::now();
+ queue<int> stlQueue;
+ for (int i = 0; i < N; i++)
+ stlQueue.push(i);
+ for (int i = 0; i < N; i++)
+       stlQueue.pop();
+ end = high_resolution_clock::now();
+ auto stlQueueTime =
+ duration_cast<microseconds>(end - start);
+ cout << "Custom Stack Time: "
+ << customStackTime.count() << " microseconds" << endl;
+ cout << "STL Stack Time: "
+ << stlStackTime.count() << " microseconds" << endl;
+ cout << "Custom Queue Time: "
+ << customQueueTime.count() << " microseconds" << endl;
+ cout << "STL Queue Time: "
+ << stlQueueTime.count() << " microseconds" << endl;
  return 0;
 }
