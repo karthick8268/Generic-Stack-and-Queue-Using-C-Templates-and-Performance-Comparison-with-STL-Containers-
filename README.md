@@ -1,238 +1,295 @@
-Matrix Operations Using Operator Overloading in C++
+Stack and Queue Performance Comparison in C++
 
 📌 Project Description
 
-This C++ program demonstrates Operator Overloading using a 2×2 Matrix class.
+This C++ project demonstrates the implementation of Stack and Queue data structures using Templates and compares their execution times with the built-in C++ Standard Template Library (STL) implementations.
 
-The program performs matrix addition and multiplication by overloading the "+" and "*" operators.
+The program performs 10,000 insertion and deletion operations on each data structure and measures execution time using the C++ "<chrono>" library.
 
-It also demonstrates overloading the "[]" operator for accessing matrix elements and the "<<" operator for displaying matrices.
-
-The program includes unit tests using assertions to verify the correctness of matrix operations.
+The main objective is to understand data structures, templates, and basic performance benchmarking in C++.
 
 🎯 Objectives
 
-- Understand operator overloading in C++.
-- Implement matrix addition and multiplication.
-- Learn how to overload arithmetic operators.
-- Understand operator overloading using member and friend functions.
-- Access matrix elements using the "[]" operator.
-- Verify program correctness using assertions.
+- Understand Stack and Queue data structures.
+- Implement custom Stack and Queue classes.
+- Learn how templates work in C++.
+- Compare custom implementations with STL containers.
+- Measure execution time using the "<chrono>" library.
+- Understand basic performance analysis.
 
 🛠️ Technologies Used
 
 - Programming Language: C++
-- Concept: Object-Oriented Programming (OOP)
+- Concepts: Data Structures, Templates, OOP
+- Libraries: "<iostream>", "<stack>", "<queue>", "<chrono>"
 - Compiler: G++
 - IDE: VS Code / CLion
-- Testing: C++ "assert()" function
 
 ✨ Features
 
-- Creates and initializes 2×2 matrices.
-- Performs matrix addition using the overloaded "+" operator.
-- Performs matrix multiplication using the overloaded "*" operator.
-- Accesses matrix elements using the overloaded "[]" operator.
-- Displays matrices using the overloaded "<<" operator.
-- Includes assertions to verify expected results.
-- Demonstrates operator overloading and encapsulation.
+- Custom Stack implementation using an array.
+- Custom Queue implementation using an array.
+- Generic classes using C++ templates.
+- Stack operations: "push()" and "pop()".
+- Queue operations: "enqueue()" and "dequeue()".
+- Performance comparison with STL Stack and Queue.
+- Execution time measurement in microseconds.
+- Benchmarking using 10,000 insertion and deletion operations.
 
 💻 Source Code
 
 #include <iostream>
-#include <cassert>
-using namespace std;
+#include <stack>
+#include <queue>
+#include <chrono>
 
-class Matrix
+using namespace std;
+using namespace chrono;
+
+template <class T>
+class MyStack
 {
 private:
-    int data[2][2];
+    T data[10000];
+    int top;
 
 public:
-    Matrix(int a = 0, int b = 0, int c = 0, int d = 0)
+    MyStack()
     {
-        data[0][0] = a;
-        data[0][1] = b;
-        data[1][0] = c;
-        data[1][1] = d;
+        top = -1;
     }
 
-    // Operator +
-    Matrix operator+(const Matrix &m)
+    void push(T value)
     {
-        Matrix result;
-
-        for (int i = 0; i < 2; i++)
-            for (int j = 0; j < 2; j++)
-                result.data[i][j] = data[i][j] + m.data[i][j];
-
-        return result;
+        if (top < 9999)
+            data[++top] = value;
     }
 
-    // Operator *
-    Matrix operator*(const Matrix &m)
+    void pop()
     {
-        Matrix result;
+        if (top >= 0)
+            top--;
+    }
+};
 
-        for (int i = 0; i < 2; i++)
-        {
-            for (int j = 0; j < 2; j++)
-            {
-                result.data[i][j] = 0;
+template <class T>
+class MyQueue
+{
+private:
+    T data[10000];
+    int front, rear;
 
-                for (int k = 0; k < 2; k++)
-                    result.data[i][j] += data[i][k] * m.data[k][j];
-            }
-        }
-
-        return result;
+public:
+    MyQueue()
+    {
+        front = 0;
+        rear = -1;
     }
 
-    // Operator []
-    int* operator[](int index)
+    void enqueue(T value)
     {
-        return data[index];
+        if (rear < 9999)
+            data[++rear] = value;
     }
 
-    // Operator <<
-    friend ostream& operator<<(ostream &out, const Matrix &m)
+    void dequeue()
     {
-        for (int i = 0; i < 2; i++)
-        {
-            for (int j = 0; j < 2; j++)
-                out << m.data[i][j] << " ";
-
-            out << endl;
-        }
-
-        return out;
+        if (front <= rear)
+            front++;
     }
 };
 
 int main()
 {
-    Matrix A(1, 2, 3, 4);
-    Matrix B(5, 6, 7, 8);
+    const int N = 10000;
 
-    Matrix sum = A + B;
-    Matrix product = A * B;
+    // Custom Stack Benchmark
+    auto start = high_resolution_clock::now();
 
-    // Unit Tests
-    assert(sum[0][0] == 6);
-    assert(sum[1][1] == 12);
+    MyStack<int> myStack;
 
-    assert(product[0][0] == 19);
-    assert(product[0][1] == 22);
-    assert(product[1][0] == 43);
-    assert(product[1][1] == 50);
+    for (int i = 0; i < N; i++)
+        myStack.push(i);
 
-    cout << "Matrix A:" << endl;
-    cout << A;
+    for (int i = 0; i < N; i++)
+        myStack.pop();
 
-    cout << "Matrix B:" << endl;
-    cout << B;
+    auto end = high_resolution_clock::now();
 
-    cout << "Addition of Matrices:" << endl;
-    cout << sum;
+    auto customStackTime =
+        duration_cast<microseconds>(end - start);
 
-    cout << "Multiplication of Matrices:" << endl;
-    cout << product;
+    // STL Stack Benchmark
+    start = high_resolution_clock::now();
 
-    cout << "All unit tests passed successfully." << endl;
+    stack<int> stlStack;
+
+    for (int i = 0; i < N; i++)
+        stlStack.push(i);
+
+    for (int i = 0; i < N; i++)
+        stlStack.pop();
+
+    end = high_resolution_clock::now();
+
+    auto stlStackTime =
+        duration_cast<microseconds>(end - start);
+
+    // Custom Queue Benchmark
+    start = high_resolution_clock::now();
+
+    MyQueue<int> myQueue;
+
+    for (int i = 0; i < N; i++)
+        myQueue.enqueue(i);
+
+    for (int i = 0; i < N; i++)
+        myQueue.dequeue();
+
+    end = high_resolution_clock::now();
+
+    auto customQueueTime =
+        duration_cast<microseconds>(end - start);
+
+    // STL Queue Benchmark
+    start = high_resolution_clock::now();
+
+    queue<int> stlQueue;
+
+    for (int i = 0; i < N; i++)
+        stlQueue.push(i);
+
+    for (int i = 0; i < N; i++)
+        stlQueue.pop();
+
+    end = high_resolution_clock::now();
+
+    auto stlQueueTime =
+        duration_cast<microseconds>(end - start);
+
+    cout << "Custom Stack Time: "
+         << customStackTime.count()
+         << " microseconds" << endl;
+
+    cout << "STL Stack Time: "
+         << stlStackTime.count()
+         << " microseconds" << endl;
+
+    cout << "Custom Queue Time: "
+         << customQueueTime.count()
+         << " microseconds" << endl;
+
+    cout << "STL Queue Time: "
+         << stlQueueTime.count()
+         << " microseconds" << endl;
 
     return 0;
 }
 
-📤 Expected Output
+📤 Expected Output Format
 
-Matrix A:
-1 2
-3 4
-Matrix B:
-5 6
-7 8
-Addition of Matrices:
-6 8
-10 12
-Multiplication of Matrices:
-19 22
-43 50
-All unit tests passed successfully.
+Custom Stack Time: <time> microseconds
+STL Stack Time: <time> microseconds
+Custom Queue Time: <time> microseconds
+STL Queue Time: <time> microseconds
+
+Note: Execution times vary depending on the computer, compiler, optimization settings, and system workload.
 
 ⚙️ Working of the Program
 
-Step 1: Matrix Class
+Step 1: Custom Stack Implementation
 
-A class named "Matrix" is created with a private 2×2 integer array to store matrix elements.
+The "MyStack" class implements a Stack using a fixed-size array.
 
-Step 2: Constructor
+A Stack follows the LIFO (Last In, First Out) principle.
 
-The parameterized constructor initializes the matrix elements.
+- "push()" inserts an element at the top.
+- "pop()" removes the top element.
 
-Step 3: Addition Operator ("+")
+Step 2: Custom Queue Implementation
 
-The overloaded "+" operator adds corresponding elements of two matrices and returns the resulting matrix.
+The "MyQueue" class implements a Queue using a fixed-size array.
 
-Step 4: Multiplication Operator ("*")
+A Queue follows the FIFO (First In, First Out) principle.
 
-The overloaded "*" operator performs standard matrix multiplication using three nested loops.
+- "enqueue()" inserts an element at the rear.
+- "dequeue()" removes an element from the front.
 
-Step 5: Subscript Operator ("[]")
+Step 3: STL Stack and Queue
 
-The overloaded "[]" operator allows matrix elements to be accessed using expressions such as "sum[0][0]".
+The program uses the built-in C++ STL containers:
 
-Step 6: Stream Insertion Operator ("<<")
+- "stack<int>" for Stack operations.
+- "queue<int>" for Queue operations.
 
-The overloaded "<<" operator displays matrix elements in a readable format.
+Step 4: Performance Measurement
 
-Step 7: Unit Testing
+The program uses "high_resolution_clock::now()" to record the starting and ending times.
 
-The "assert()" function checks whether the calculated matrix elements match the expected values.
+The difference is calculated and converted into microseconds using "duration_cast<microseconds>()".
 
-If all assertions pass, the program displays a success message.
+Step 5: Performance Comparison
 
-📚 OOP Concepts Used
+Each data structure performs:
 
-1. Operator Overloading
+- 10,000 insertion operations.
+- 10,000 deletion operations.
 
-Allows existing operators to perform operations on user-defined objects.
+The program displays the execution time for each implementation.
 
-2. Encapsulation
+📚 Concepts Used
 
-The matrix elements are stored in a private data member.
+1. Stack
 
-3. Constructor
+A linear data structure that follows the Last In, First Out principle.
 
-Initializes the matrix elements when an object is created.
+2. Queue
 
-4. Friend Function
+A linear data structure that follows the First In, First Out principle.
 
-The overloaded "<<" operator is implemented as a friend function to access private matrix data.
+3. Templates
 
-5. Objects and Classes
+Templates allow the same class to work with different data types.
 
-The "Matrix" class defines the structure and operations of matrix objects.
+4. Object-Oriented Programming
 
-🧪 Unit Testing
+Classes and objects are used to implement custom data structures.
 
-The program uses the C++ "assert()" function to validate matrix addition and multiplication.
+5. Standard Template Library
 
-The following operations are tested:
+STL provides ready-made implementations of common data structures.
 
-- Matrix addition
-- Matrix multiplication
-- Accessing matrix elements
-- Comparing actual results with expected values
+6. Performance Benchmarking
 
-All six assertions must pass for the program to display the success message.
+The "<chrono>" library is used to measure execution time.
 
-Note: Assertions are active when the program is compiled without defining "NDEBUG".
+⏱️ Time Complexity
+
+Operation| Custom Stack| Custom Queue| STL Stack| STL Queue
+Insertion| O(1)| O(1)| O(1)| O(1)
+Deletion| O(1)| O(1)| O(1)| O(1)
+
+STL Stack and Queue operations have constant-time complexity for their standard underlying containers.
+
+⚠️ Limitations
+
+- Custom implementations use fixed-size arrays with a capacity of 10,000 elements.
+- The custom Queue does not reuse previously occupied positions after dequeue operations.
+- Overflow and underflow are handled silently without error messages.
+- The benchmark runs only once for each implementation.
+- Compiler optimizations may eliminate unused operations, affecting the measurements.
+- The program does not verify the correctness of inserted or removed values.
+- A single benchmark is insufficient to establish which implementation is generally faster.
+
+For more reliable benchmarking, repeated measurements, optimized builds, and checks that prevent the compiler from eliminating the tested operations are recommended.
 
 🎓 Learning Outcome
 
-Through this program, I learned how to implement operator overloading in C++ to perform mathematical operations on user-defined objects.
+Through this project, I learned how to implement Stack and Queue data structures using C++ templates.
 
-I also gained practical knowledge of constructors, friend functions, encapsulation, and basic unit testing using assertions.
+I also gained practical knowledge of STL containers, insertion and deletion operations, and execution time measurement using the "<chrono>" library.
+
+This project helped me understand the basic differences between custom data structure implementations and standard library containers.
 
 👨‍💻 Author
 
@@ -242,6 +299,6 @@ Chennai Institute of Technology
 
 📄 Conclusion
 
-This project demonstrates how operator overloading improves code readability and allows matrix objects to be manipulated using familiar mathematical operators.
+This project demonstrates custom Stack and Queue implementations and compares their execution times with C++ STL containers.
 
-It provides a practical introduction to Object-Oriented Programming concepts and basic unit testing in C++.
+It provides practical experience with data structures, templates, Object-Oriented Programming, and basic performance benchmarking in C++.
